@@ -107,6 +107,39 @@ The PropTrace panel will appear on the right side:
 
 ## 5. Architecture & Codebase Layout
 
+### System Architecture Flow
+The following diagram illustrates how the VS Code Extension host, the AST Static Analysis engine, the React-based Webview dashboard, and the messaging bridge interact with each other:
+
+```mermaid
+graph TD
+    subgraph VSCode[VS Code Editor Host]
+        CL[CodeLens Provider] -->|Click Event| TP[Trace Prop Command]
+        CM[Context Menu] -->|Right-Click Event| TP
+    end
+
+    subgraph Engine[AST Static Analysis Engine]
+        TP -->|Triggers Trace| B[buildTraceGraph.ts]
+        B -->|Step 1: Resolve Hook/State Origin| O[resolvePropOrigin.ts]
+        B -->|Step 2: Classify Intermediate Variables/Spreads| P[detectPassthrough.ts]
+        B -->|Step 3: Trace Forward JSX Tree| F[tracePropForward.ts]
+        B -->|Step 4: Compute Metrics & Smells| A[drillDepthAnalyzer.ts & suggestionAnalyzer.ts]
+    end
+
+    subgraph Bridge[Webview Messaging Bridge]
+        B -->|Send TraceResult & Metrics| Msg[postMessage]
+    end
+
+    subgraph Dashboard[React Webview Dashboard]
+        Msg -->|Receives payload| App[App.tsx]
+        App -->|Renders List| Tree[TreeView.tsx]
+        App -->|Renders Nodes/Edges| Graph[GraphView.tsx]
+        App -->|Interactions| Navigation[Click to Jump to Source / Retrace]
+    end
+
+    Navigation -->|jumpToSource / retrace| TP
+```
+
+### Directory Layout
 ```
 ├── src/
 │   ├── analyzers/                   # Metrics score & refactoring suggestions
@@ -139,3 +172,28 @@ Execute the comprehensive engine tests using Vitest:
 ```bash
 npm test
 ```
+
+---
+
+## 7. FAQs (Frequently Asked Questions)
+
+### Q: Can it trace props destructured from custom hooks?
+**A:** Yes. PropTrace handles destructuring patterns for React state hooks (`useState`, `useReducer`), context, and custom hooks, and traces them back to their origin component boundary.
+
+### Q: Does it support spread attributes (`{...props}`)?
+**A:** Yes. It traces object spreads recursively. If a prop is passed down via a spread element, it identifies it, labels it as a `Spread Boundary`, and flags it in the visualizer.
+
+### Q: Does it support both TypeScript and JavaScript React?
+**A:** Yes. PropTrace parses both TypeScript React (`.tsx`, `.ts`) and JavaScript React (`.jsx`, `.js`) codebase files.
+
+---
+
+## 8. Contributing
+
+Contributions are welcome! Please feel free to open issues or submit pull requests for code optimizations, styling improvements, or new analyzer rules.
+
+---
+
+## 9. Author
+
+Built by [tarunagnihotri534](https://github.com/tarunagnihotri534) for visual component dependency tracking.
