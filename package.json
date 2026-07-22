@@ -1,0 +1,94 @@
+{
+  "name": "proptrace",
+  "displayName": "PropTrace",
+  "description": "Visualize prop drilling in React/Next.js codebases — trace any prop from its origin to every consumption point.",
+  "version": "0.1.0",
+  "publisher": "proptrace",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "activationEvents": [
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:javascript"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "proptrace.traceProp",
+        "title": "PropTrace: Trace Prop"
+      },
+      {
+        "command": "proptrace.showAllDrilledProps",
+        "title": "PropTrace: Show All Drilled Props in File"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "proptrace.traceProp",
+          "when": "editorTextFocus && (resourceExtname == .tsx || resourceExtname == .jsx || resourceExtname == .ts || resourceExtname == .js)",
+          "group": "navigation@100"
+        },
+        {
+          "command": "proptrace.showAllDrilledProps",
+          "when": "editorTextFocus && (resourceExtname == .tsx || resourceExtname == .jsx || resourceExtname == .ts || resourceExtname == .js)",
+          "group": "navigation@101"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "PropTrace",
+      "properties": {
+        "proptrace.drillDepthThreshold": {
+          "type": "number",
+          "default": 3,
+          "description": "Minimum prop drilling depth to trigger a suggestion (default: 3)."
+        },
+        "proptrace.enableCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show '🔍 Trace props' CodeLens above component function signatures."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.config.js",
+    "build:webview": "node esbuild.config.js --webview",
+    "watch": "node esbuild.config.js --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:extension": "vscode-test",
+    "lint": "eslint src tests --ext ts,tsx",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.19.10",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "ts-api-utils": "^2.5.0",
+    "vitest": "^1.0.4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "reactflow": "^11.10.1",
+    "ts-morph": "^21.0.1"
+  }
+}
